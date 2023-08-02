@@ -1,22 +1,36 @@
 const express = require("express");
-// const axios = require('axios');
+const moment = require('moment');
 const router = express.Router();
+const schedule = require('node-schedule');
+const { client } = require("../utils/db.js");
+const { bot } = require("../utils/bot.js");
 
-router.get("/", async (req, res, next) => {
-  function telebotPromise() {
-    return new Promise((resolve) => {
-      setTimeout((() => {
-        fetch("https://api.telegram.org/bot6359990785:AAGNEIUUwgdSK2BtF2PWgqj9i--v_XzDZXQ/sendMessage?chat_id=635999134&text=QQQQQQ")
-          .then(resolve)
-      }), 10*60*1000)
-    })  
+router.get("/:name", async (req, res, next) => {
+  let userName = req.params.name
+  let newTime = moment(new Date).add(10, 's').format()
+  try {
+    const database = client.db("mainDB");
+    const collection = database.collection("member");
+    const query = { name: userName};
+    const options = {
+      sort: { "imdb.rating": -1 },
+      projection: { _id: 0, name: 1, chatId: 1 },
+    };
+    const result = await collection.findOne(query, options);
+    const job = schedule.scheduleJob(newTime, function(){
+      bot.sendMessage(result.chatId, '10秒鐘過去了');
+    });
+  } finally {
+    await client.close();
   }
-
-  await telebotPromise();
+  
+  
   return res.status(200).json({
     title: "Express Testing......",
     message: "The app is working properly!",
   });
 });
+
+
 
 module.exports = router;
