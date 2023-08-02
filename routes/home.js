@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
+const moment = require('moment');
 const { bot } = require("../utils/bot.js");
 const { client } = require("../utils/db.js");
+const schedule = require('node-schedule');
 
 router.get("/", async (req, res, next) => {
   return res.status(200).json({
@@ -34,4 +36,13 @@ bot.onText(/\/reg (.+)/, async function (msg, match) {
   }
 });
 
+bot.onText(/上班/, async function (msg) {
+  let chatId = msg.from.id;
+  time = moment(new Date).format('YYYY-MM-DD , h:mm:ss a')
+  newTime = moment(new Date).add(9, 'h').format('YYYY-MM-DD , h:mm:ss a')
+  bot.sendMessage(chatId, `上班時間: ${time} \n 預計提示下班時間為: ${newTime}`)
+  const job = schedule.scheduleJob(newTime, function(){
+    bot.sendMessage(chatId, '辛苦了，下班囉');
+  });
+});
 module.exports = router;
