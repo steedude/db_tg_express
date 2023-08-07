@@ -18,7 +18,7 @@ router.get("/:name", async (req, res, next) => {
     };
     const result = await collection.findOne(query, options);
     const job = schedule.scheduleJob(newTime, function(){
-      bot.sendMessage(result.chatId, '10秒鐘過去了');
+      bot.telegram.sendMessage(result.chatId, '10秒鐘過去了');
     });
   } finally {
     await client.close();
