@@ -7,7 +7,7 @@ const { bot } = require("../utils/bot.js");
 
 router.get("/:name", async (req, res, next) => {
   let userName = req.params.name
-  let newTime = moment(new Date).add(10, 's').format()
+  let newTime = moment(new Date).add(3, 's').format()
   try {
     const database = client.db("mainDB");
     const collection = database.collection("member");
@@ -18,7 +18,7 @@ router.get("/:name", async (req, res, next) => {
     };
     const result = await collection.findOne(query, options);
     const job = schedule.scheduleJob(newTime, function(){
-      bot.telegram.sendMessage(result.chatId, '10秒鐘過去了');
+      bot.telegram.sendMessage(result.chatId, '3秒鐘過去了');
     });
   } finally {
     await client.close();
