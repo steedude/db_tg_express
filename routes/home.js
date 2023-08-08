@@ -17,10 +17,10 @@ router.get("/", async (req, res, next) => {
 });
 
 bot.hears('上班', ctx => {
-  let chatId = ctx.update.message.from.id;
+  let chatId = ctx.chat.id;
   let time = moment(new Date).format('YYYY-MM-DD , h:mm:ss a')
   let newTime = moment(new Date).add(9, 'h').format('YYYY-MM-DD , h:mm:ss a')
-  ctx.reply(chatId, `上班時間: ${time} \n 預計提示下班時間為: ${newTime}`)
+  ctx.reply(`上班時間: ${time} \n 預計提示下班時間為: ${newTime}`)
   const job = schedule.scheduleJob(newTime, function(){
     bot.telegram.sendMessage(chatId, '辛苦了，下班囉');
   });
@@ -65,7 +65,7 @@ const registerWizard = new WizardScene(
       const doc = {
         name: ctx.wizard.state.data.name,
         passward:ctx.wizard.state.data.passward,
-        chatId: ctx.update.message.from.id,
+        chatId: ctx.chat.id,
       }
       const result = await collection.insertOne(doc);
       console.log(result)
