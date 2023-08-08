@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const api = require('./routes/api')
 const home = require('./routes/home')
+require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
 
 // Middlewares
 const app = express()

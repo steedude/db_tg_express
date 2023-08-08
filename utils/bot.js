@@ -1,4 +1,5 @@
-const token = '6359990785:AAGNEIUUwgdSK2BtF2PWgqj9i--v_XzDZXQ'
+require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
+const token = process.env.BOT_TOKEN
 const { Telegraf } = require('telegraf')
 const bot = new Telegraf(token)
 
