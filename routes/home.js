@@ -168,7 +168,7 @@ const reserveWizard = new WizardScene(
       bot.telegram.sendMessage(ctx.chat.id, datas.msg)
     })
     console.log(job)
-    ctx.reply(`將於${date}提醒${datas.msg}`)
+    ctx.reply(`將於${date}提醒您：${datas.msg}`)
     return ctx.scene.leave()
   }
 )
