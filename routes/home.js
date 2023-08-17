@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const moment = require('moment')
 const { bot } = require('../utils/bot.js')
-const { client } = require('../utils/db.js')
+const { collection } = require('../utils/db.js')
 const schedule = require('node-schedule')
 const { session, Scenes, Markup } = require('telegraf')
 const Stage = Scenes.Stage
@@ -25,11 +25,6 @@ bot.hears('上班', (ctx) => {
   })
   console.log(job)
 })
-
-// bot.hears('dd', (ctx) => {
-//   const date = new Date(2012, 11, 21, 5, 30, 0)
-//   console.log(date)
-// })
 
 bot.command('start', (ctx) => {
   return ctx.reply(
@@ -65,8 +60,6 @@ const registerWizard = new WizardScene(
     }
     ctx.wizard.state.data.passward = ctx.message.text
     try {
-      const database = client.db('mainDB')
-      const collection = database.collection('member')
       const doc = {
         name: ctx.wizard.state.data.name,
         passward: ctx.wizard.state.data.passward,
