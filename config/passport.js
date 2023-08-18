@@ -1,13 +1,12 @@
 const passport = require('passport')
-const passportLocal = require('passport-local')
+// const passportLocal = require('passport-local')
 const passportJWT = require('passport-jwt')
-// const bcrypt = 'bcryptjs'
-const { User } = '../models/user'
+// const bcrypt = require('bcrypt')
 const { ObjectId } = require('mongodb')
 const { collection } = require('../utils/db.js')
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
 
-const LocalStrategy = passportLocal.Strategy
+// const LocalStrategy = passportLocal.Strategy
 const { Strategy: JwtStrategy, ExtractJwt } = passportJWT
 
 const jwtOptions = {
@@ -15,31 +14,19 @@ const jwtOptions = {
   secretOrKey: process.env.JWT_SECRET,
 }
 
-passport.use(
-  new LocalStrategy(
-    {
-      usernameField: 'account',
-      passwordField: 'password',
-    },
-    (account, password, done) => {
-      console.log(account)
-      console.log(password)
-      done(null, { message: 'This account is not registered' })
-      // User.findOne({ account }).then(user => {
-      //   if (!user) {
-      //     return done(null, false, { message: 'This account is not registered' });
-      //   }
-
-      //   bcrypt.compare(password, user.password, (err, isMatch) => {
-      //     if (err) throw err;
-      //     return isMatch
-      //       ? done(null, user)
-      //       : done(null, false, { message: 'account or password incorrect' });
-      //   });
-      // });
-    }
-  )
-)
+// passport.use(
+//   new LocalStrategy(
+//     {
+//       usernameField: 'account',
+//       passwordField: 'password',
+//     },
+//     async (account, password, done) => {
+//       console.log(account)
+//       console.log(password)
+//       return done(null, { title: '123' })
+//     }
+//   )
+// )
 
 passport.use(
   new JwtStrategy(jwtOptions, async (jwt_payload, done) => {
@@ -53,14 +40,14 @@ passport.use(
   })
 )
 
-passport.serializeUser((user, done) => {
-  done(null, user.id)
-})
+//以下session: false時用不到
+// passport.serializeUser((user, done) => {
+//   done(null, user._id)
+// })
 
-passport.deserializeUser((id, done) => {
-  User.findById(id, (err, user) => {
-    done(err, user)
-  })
-})
+// passport.deserializeUser((id, done) => {
+//   console.log(id)
+//   done()
+// })
 
 module.exports = passport

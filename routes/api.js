@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const passport = require('passport')
 const authenticated = passport.authenticate('jwt', { session: false })
-const localAuthenticated = passport.authenticate('local', { session: false })
+// const localAuthenticated = passport.authenticate('local', { session: false })
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
 
 //註冊
@@ -52,9 +52,8 @@ router.post('/register', async (req, res) => {
 })
 
 //登入
-router.post('/login', localAuthenticated, async (req, res) => {
+router.post('/login', async (req, res) => {
   const { account, password } = req.body
-  console.log(account, password)
   //防呆
   if (!account || !password) {
     return res
@@ -86,7 +85,6 @@ router.post('/login', localAuthenticated, async (req, res) => {
 })
 
 router.get('/test', authenticated, async (req, res) => {
-  console.log(req.user)
   return res.status(200).json({
     title: 'success',
     message: 'get data success',
