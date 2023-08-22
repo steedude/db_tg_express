@@ -12,7 +12,11 @@ const { Strategy: JwtStrategy, ExtractJwt } = passportJWT
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: process.env.JWT_SECRET,
+  passReqToCallback: true,
 }
+// const localOptions = {
+//   passReqToCallback: true,
+// }
 
 // const checkPassword = (user, password) =>
 //   bcrypt
@@ -21,7 +25,7 @@ const jwtOptions = {
 
 // passport.use(
 //   'signin',
-//   new LocalStrategy((username, password, done) => {
+//   new LocalStrategy(localOptions,(username, password, done) => {
 //     User.findOne(username)
 //       .then((user) => checkPassword(user, password))
 //       .then((user) => done(null, user))

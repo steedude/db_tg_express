@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const session = require('express-session')
 const passport = require('./config/passport')
+const flash = require('connect-flash')
 const api = require('./routes/api')
 const home = require('./routes/home')
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
@@ -19,6 +20,7 @@ app.use(
 )
 app.use(passport.initialize())
 app.use(passport.session())
+app.use(flash())
 
 // Routes
 app.use('/', home)

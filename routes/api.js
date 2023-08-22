@@ -4,8 +4,14 @@ const { collection } = require('../utils/db.js')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const passport = require('passport')
-const authenticated = passport.authenticate('token', { session: false })
-// const localAuthenticated = passport.authenticate('local', { session: false })
+const jwtAuthenticated = passport.authenticate('token', {
+  session: false,
+})
+// const localAuthenticated = passport.authenticate('local', {
+//   session: false,
+//   successRedirect: '/',
+//   failureRedirect: '/',
+// })
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
 
 //註冊
@@ -84,7 +90,7 @@ router.post('/login', async (req, res) => {
   })
 })
 
-router.get('/test', authenticated, async (req, res) => {
+router.get('/test', jwtAuthenticated, async (req, res) => {
   return res.status(200).json({
     title: 'success',
     message: 'get data success',
