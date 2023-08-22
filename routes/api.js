@@ -4,7 +4,7 @@ const { collection } = require('../utils/db.js')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const passport = require('passport')
-const authenticated = passport.authenticate('jwt', { session: false })
+const authenticated = passport.authenticate('token', { session: false })
 // const localAuthenticated = passport.authenticate('local', { session: false })
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
 

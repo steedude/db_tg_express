@@ -14,21 +14,23 @@ const jwtOptions = {
   secretOrKey: process.env.JWT_SECRET,
 }
 
+// const checkPassword = (user, password) =>
+//   bcrypt
+//     .compare(password, user.password)
+//     .then((result) => (result ? Promise.resolve(user) : Promise.reject(null)))
+
 // passport.use(
-//   new LocalStrategy(
-//     {
-//       usernameField: 'account',
-//       passwordField: 'password',
-//     },
-//     async (account, password, done) => {
-//       console.log(account)
-//       console.log(password)
-//       return done(null, { title: '123' })
-//     }
-//   )
+//   'signin',
+//   new LocalStrategy((username, password, done) => {
+//     User.findOne(username)
+//       .then((user) => checkPassword(user, password))
+//       .then((user) => done(null, user))
+//       .catch((err) => done(err, false))
+//   })
 // )
 
 passport.use(
+  'token',
   new JwtStrategy(jwtOptions, async (jwt_payload, done) => {
     const myid = new ObjectId(jwt_payload.id)
     const query = { _id: myid }
