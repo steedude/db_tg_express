@@ -6,6 +6,8 @@ const jwt = require('jsonwebtoken')
 const passport = require('passport')
 const jwtAuthenticated = passport.authenticate('token', {
   session: false,
+  failureRedirect: '/api/error',
+  failureMessage: true,
 })
 // const localAuthenticated = passport.authenticate('local', {
 //   session: false,
@@ -97,6 +99,18 @@ router.get('/test', jwtAuthenticated, async (req, res) => {
     resultMap: {
       data: [1, 2, 3, 4],
     },
+  })
+})
+
+router.get('/error', (req, res) => {
+  console.log(req.session)
+  delete req.session.error
+  delete req.session.message
+
+  // console.log('req = ', req.session.messages)
+  // res.render('error')
+  return res.status(400).json({
+    title: 'error',
   })
 })
 
