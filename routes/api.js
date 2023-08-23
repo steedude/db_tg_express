@@ -102,6 +102,11 @@ router.get('/test', jwtAuthenticated, async (req, res) => {
     },
   })
 })
+router.post('/test2', function (req, res, next) {
+  passport.authenticate('local', function (err, user, info) {
+    console.log(err, user, info)
+  })(req, res, next)
+})
 
 router.get('/error', (req, res) => {
   console.log('req = ', req.session)

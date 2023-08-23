@@ -1,36 +1,41 @@
 const passport = require('passport')
-// const passportLocal = require('passport-local')
+const passportLocal = require('passport-local')
 const passportJWT = require('passport-jwt')
 // const bcrypt = require('bcrypt')
 const { ObjectId } = require('mongodb')
 const { collection } = require('../utils/db.js')
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
 
-// const LocalStrategy = passportLocal.Strategy
+const LocalStrategy = passportLocal.Strategy
 const { Strategy: JwtStrategy, ExtractJwt } = passportJWT
 
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: process.env.JWT_SECRET,
 }
-// const localOptions = {
-//   passReqToCallback: true,
-// }
+const localOptions = {
+  usernameField: 'username',
+  passwordField: 'password',
+  session: false,
+}
 
 // const checkPassword = (user, password) =>
 //   bcrypt
 //     .compare(password, user.password)
 //     .then((result) => (result ? Promise.resolve(user) : Promise.reject(null)))
 
-// passport.use(
-//   'signin',
-//   new LocalStrategy(localOptions,(username, password, done) => {
-//     User.findOne(username)
-//       .then((user) => checkPassword(user, password))
-//       .then((user) => done(null, user))
-//       .catch((err) => done(err, false))
-//   })
-// )
+passport.use(
+  'local',
+  new LocalStrategy(localOptions, (username, password, done) => {
+    console.log(username, password)
+    const user = 'jason'
+    // User.findOne(username)
+    //   .then((user) => checkPassword(user, password))
+    //   .then((user) => done(null, user))
+    //   .catch((err) => done(err, false))
+    done(null, user, { message: 'wrong token' })
+  })
+)
 
 passport.use(
   'token',
