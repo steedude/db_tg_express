@@ -12,7 +12,6 @@ const { Strategy: JwtStrategy, ExtractJwt } = passportJWT
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: process.env.JWT_SECRET,
-  passReqToCallback: true,
 }
 // const localOptions = {
 //   passReqToCallback: true,
