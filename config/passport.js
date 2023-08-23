@@ -39,7 +39,7 @@ passport.use(
     const query = { _id: myid }
     const searchResult = await collection.findOne(query)
     if (searchResult == null) {
-      return done(null, false, { title: 'error', message: 'wrong token' })
+      return done(null, false, { message: 'wrong token' })
     }
     return done(null, searchResult)
   })
@@ -50,9 +50,14 @@ passport.use(
 //   done(null, user._id)
 // })
 
-// passport.deserializeUser((id, done) => {
-//   console.log(id)
-//   done()
+// passport.deserializeUser(async (_id, done) => {
+//   const myid = new ObjectId(_id)
+//   const query = { _id: myid }
+//   const searchResult = await collection.findOne(query)
+//   if (searchResult == null) {
+//     return done(null, false, { message: 'wrong token' })
+//   }
+//   return done(null, searchResult)
 // })
 
 module.exports = passport

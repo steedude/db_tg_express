@@ -15,12 +15,12 @@ app.use(
   session({
     secret: 'code-immediate',
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
   })
 )
+app.use(flash())
 app.use(passport.initialize())
 app.use(passport.session())
-app.use(flash())
 
 // Routes
 app.use('/', home)

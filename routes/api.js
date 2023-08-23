@@ -8,6 +8,7 @@ const jwtAuthenticated = passport.authenticate('token', {
   session: false,
   failureRedirect: '/api/error',
   failureMessage: true,
+  failureFlash: true,
 })
 // const localAuthenticated = passport.authenticate('local', {
 //   session: false,
@@ -103,12 +104,7 @@ router.get('/test', jwtAuthenticated, async (req, res) => {
 })
 
 router.get('/error', (req, res) => {
-  console.log(req.session)
-  delete req.session.error
-  delete req.session.message
-
-  // console.log('req = ', req.session.messages)
-  // res.render('error')
+  console.log('req = ', req.session)
   return res.status(400).json({
     title: 'error',
   })
