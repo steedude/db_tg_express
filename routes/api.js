@@ -63,6 +63,7 @@ router.post('/register', async (req, res) => {
 //-----登入-----
 router.post('/login', function (req, res, next) {
   passport.authenticate('login', function (err, user, info) {
+    //DB如果有報錯
     if (err) {
       return res.status(400).json({
         title: 'error',
