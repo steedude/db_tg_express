@@ -36,7 +36,25 @@ passport.use(
     done(null, user, { message: 'wrong token' })
   })
 )
-
+passport.use(
+  'test',
+  new LocalStrategy(
+    {
+      passReqToCallback: true,
+    },
+    (req, username, password, done) => {
+      // User.findOne(username)
+      //   .then((user) => checkPassword(user, password))
+      //   .then((user) => done(null, user))
+      //   .catch((err) => done(err, false))
+      return done(
+        null,
+        false,
+        req.flash('error_messages', 'incorrect email or password!')
+      )
+    }
+  )
+)
 passport.use(
   'token',
   new JwtStrategy(jwtOptions, async (jwt_payload, done) => {

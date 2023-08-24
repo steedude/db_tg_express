@@ -107,11 +107,32 @@ router.post('/test2', function (req, res, next) {
     console.log(err, user, info)
   })(req, res, next)
 })
+router.post(
+  '/test3',
+  passport.authenticate('test', {
+    session: false,
+    failureFlash: true,
+    failureRedirect: '/api/loginfailed',
+  }),
+  async (req, res) => {
+    return res.status(200).json({
+      title: 'success',
+      message: 'get data success',
+    })
+  }
+)
 
 router.get('/error', (req, res) => {
   console.log('req = ', req.session)
   return res.status(400).json({
     title: 'error',
+  })
+})
+
+router.get('/loginfailed', function (req, res) {
+  const msg = req.flash('error_messages')[0]
+  return res.status(400).json({
+    title: msg,
   })
 })
 
