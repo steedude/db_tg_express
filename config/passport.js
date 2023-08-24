@@ -1,9 +1,8 @@
 const passport = require('passport')
 const passportLocal = require('passport-local')
 const passportJWT = require('passport-jwt')
-// const bcrypt = require('bcrypt')
-const { ObjectId } = require('mongodb')
-const { collection } = require('../utils/db.js')
+const bcrypt = require('bcrypt')
+const User = require('../models/user')
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
 
 const LocalStrategy = passportLocal.Strategy
@@ -13,74 +12,52 @@ const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: process.env.JWT_SECRET,
 }
-const localOptions = {
-  usernameField: 'username',
-  passwordField: 'password',
-  session: false,
-}
-
-// const checkPassword = (user, password) =>
-//   bcrypt
-//     .compare(password, user.password)
-//     .then((result) => (result ? Promise.resolve(user) : Promise.reject(null)))
 
 passport.use(
-  'local',
-  new LocalStrategy(localOptions, (username, password, done) => {
-    console.log(username, password)
-    const user = 'jason'
-    // User.findOne(username)
-    //   .then((user) => checkPassword(user, password))
-    //   .then((user) => done(null, user))
-    //   .catch((err) => done(err, false))
-    done(null, user, { message: 'wrong token' })
-  })
-)
-passport.use(
-  'test',
-  new LocalStrategy(
-    {
-      passReqToCallback: true,
-    },
-    (req, username, password, done) => {
-      // User.findOne(username)
-      //   .then((user) => checkPassword(user, password))
-      //   .then((user) => done(null, user))
-      //   .catch((err) => done(err, false))
-      return done(
-        null,
-        false,
-        req.flash('error_messages', 'incorrect email or password!')
-      )
+  'login',
+  new LocalStrategy(async (username, password, done) => {
+    try {
+      const searchResult = await User.findOne({ account: username })
+      if (
+        searchResult == null ||
+        !bcrypt.compareSync(password, searchResult.password)
+      ) {
+        done(null, false, {
+          title: 'error',
+          message: 'Incorrect account or password',
+        })
+      } else {
+        done(null, searchResult)
+      }
+    } catch (err) {
+      done(err, false)
     }
-  )
+  })
 )
 passport.use(
   'token',
   new JwtStrategy(jwtOptions, async (jwt_payload, done) => {
-    const myid = new ObjectId(jwt_payload.id)
-    const query = { _id: myid }
-    const searchResult = await collection.findOne(query)
-    if (searchResult == null) {
-      return done(null, false, { message: 'wrong token' })
+    try {
+      const searchResult = await User.findById(jwt_payload.id)
+      if (!searchResult) {
+        done(null, false, { message: 'This account is not registered' })
+      }
+      done(null, searchResult)
+    } catch (e) {
+      done(e)
     }
-    return done(null, searchResult)
   })
 )
 
 //以下session: false時用不到
-// passport.serializeUser((user, done) => {
-//   done(null, user._id)
-// })
+passport.serializeUser((user, done) => {
+  done(null, user.id)
+})
 
-// passport.deserializeUser(async (_id, done) => {
-//   const myid = new ObjectId(_id)
-//   const query = { _id: myid }
-//   const searchResult = await collection.findOne(query)
-//   if (searchResult == null) {
-//     return done(null, false, { message: 'wrong token' })
-//   }
-//   return done(null, searchResult)
-// })
+passport.deserializeUser((id, done) => {
+  User.findById(id, (err, user) => {
+    done(err, user)
+  })
+})
 
 module.exports = passport

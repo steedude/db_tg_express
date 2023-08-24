@@ -2,7 +2,8 @@ const express = require('express')
 const router = express.Router()
 const moment = require('moment')
 const { bot } = require('../utils/bot.js')
-const { collection } = require('../utils/db.js')
+const bcrypt = require('bcrypt')
+const User = require('../models/user')
 const schedule = require('node-schedule')
 const { session, Scenes, Markup } = require('telegraf')
 const Stage = Scenes.Stage
@@ -39,7 +40,7 @@ bot.command('start', (ctx) => {
 const registerWizard = new WizardScene(
   'register-wizard',
   (ctx) => {
-    ctx.reply('請輸入英文名稱，或輸入cancel退出')
+    ctx.reply('請輸入帳號，或輸入cancel退出')
     ctx.wizard.state.data = {}
     return ctx.wizard.next()
   },
@@ -50,7 +51,7 @@ const registerWizard = new WizardScene(
     if (ctx.message.text == 'cancel') {
       return ctx.scene.leave()
     }
-    ctx.wizard.state.data.name = ctx.message.text
+    ctx.wizard.state.data.account = ctx.message.text
     ctx.reply('請輸入密碼，或輸入cancel退出')
     return ctx.wizard.next()
   },
@@ -61,17 +62,18 @@ const registerWizard = new WizardScene(
     ctx.wizard.state.data.passward = ctx.message.text
     try {
       const doc = {
-        name: ctx.wizard.state.data.name,
-        passward: ctx.wizard.state.data.passward,
+        account: ctx.wizard.state.data.account,
+        password: bcrypt.hashSync(
+          ctx.wizard.state.data.passward,
+          bcrypt.genSaltSync(10)
+        ),
         chatId: ctx.chat.id,
       }
-      const result = await collection.insertOne(doc)
-      console.log(result)
-      ctx.reply(
-        `已成功註冊，name: ${ctx.wizard.state.data.name}，passward:${ctx.wizard.state.data.passward}`
-      )
+      const result = await User.create(doc)
+      ctx.reply(`已成功註冊，${result}`)
     } catch (e) {
-      ctx.reply(e)
+      console.log('註冊失敗')
+      ctx.reply(e.toString())
     }
     return ctx.scene.leave()
   }
@@ -171,7 +173,7 @@ bot.use(session())
 bot.use(stage.middleware())
 
 bot.action('register', async (ctx, next) => {
-  return ctx.reply('開始預約').then(() => {
+  return ctx.reply('開始註冊').then(() => {
     ctx.scene.enter('register-wizard')
     next()
   })
