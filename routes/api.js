@@ -6,9 +6,6 @@ const jwt = require('jsonwebtoken')
 const passport = require('passport')
 const jwtAuthenticated = passport.authenticate('token', {
   session: false,
-  failureRedirect: '/api/error',
-  failureMessage: true,
-  failureFlash: true,
 })
 // const localAuthenticated = passport.authenticate('local', {
 //   session: false,
@@ -102,11 +99,30 @@ router.get('/test', jwtAuthenticated, async (req, res) => {
     },
   })
 })
+
 router.post('/test2', function (req, res, next) {
   passport.authenticate('local', function (err, user, info) {
-    console.log(err, user, info)
+    if (err) {
+      return next(err)
+    }
+
+    // 如果找不到使用者
+    if (!user) {
+      res.status(401)
+      res.end(info.message)
+      return
+    }
+
+    // 否則登入
+    req.logIn(user, function (err) {
+      if (err) {
+        return next(err)
+      }
+      return res.redirect('/users/' + user.username)
+    })
   })(req, res, next)
 })
+
 router.post(
   '/test3',
   passport.authenticate('test', {
