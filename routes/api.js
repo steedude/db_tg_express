@@ -77,7 +77,6 @@ router.post('/login', function (req, res, next) {
         message: info.message,
       })
     }
-
     //沒問題就發token
     return res.status(200).json({
       title: 'success',
@@ -93,10 +92,10 @@ router.post('/login', function (req, res, next) {
 router.get(
   '/test',
   passport.authenticate('token', {
-    session: true,
+    session: false,
   }),
   async (req, res) => {
-    console.log(req.user)
+    console.log(req.user.account + ' get data')
     return res.status(200).json({
       title: 'success',
       message: 'get data success',
