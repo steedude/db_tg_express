@@ -1,7 +1,7 @@
 const { Schema, model } = require('mongoose')
 
 const userSchema = new Schema({
-  account: {
+  username: {
     type: String,
     required: true,
     unique: true,
@@ -13,6 +13,7 @@ const userSchema = new Schema({
   chatId: {
     type: Number,
   },
+  updated: { type: Date, default: Date.now },
 })
 
 const User = model('User', userSchema)

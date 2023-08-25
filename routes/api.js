@@ -9,9 +9,9 @@ require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
 
 //----註冊-----
 router.post('/register', async (req, res) => {
-  const { account, password, confirmPassword } = req.body
+  const { username, password, confirmPassword } = req.body
   //防呆
-  if (!account || !password || !confirmPassword) {
+  if (!username || !password || !confirmPassword) {
     return res
       .status(400)
       .json({ title: 'error', message: 'missing information' })
@@ -24,11 +24,11 @@ router.post('/register', async (req, res) => {
   }
   //確認有無重複帳號
   try {
-    const searchResult = await User.findOne({ account: account })
+    const searchResult = await User.findOne({ username: username })
     if (searchResult != null) {
       return res.status(400).json({
         title: 'error',
-        message: 'Duplicate account',
+        message: 'Duplicate username',
       })
     }
   } catch (e) {
@@ -39,7 +39,7 @@ router.post('/register', async (req, res) => {
   }
   //新增帳號
   const doc = {
-    account: account,
+    username: username,
     password: bcrypt.hashSync(password, bcrypt.genSaltSync(10)),
   }
   try {
@@ -53,6 +53,7 @@ router.post('/register', async (req, res) => {
       },
     })
   } catch (e) {
+    console.log(e)
     return res.status(400).json({
       title: 'error',
       message: e,
@@ -61,31 +62,35 @@ router.post('/register', async (req, res) => {
 })
 
 //-----登入-----
-router.post('/login', function (req, res, next) {
-  passport.authenticate('login', function (err, user, info) {
-    //DB如果有報錯
-    if (err) {
-      return res.status(400).json({
-        title: 'error',
-        message: err,
+router.post('/login', async (req, res) => {
+  const { username, password } = req.body
+  //防呆
+  if (!username || !password) {
+    return res
+      .status(400)
+      .json({ title: 'error', message: 'missing information' })
+  }
+  try {
+    const searchResult = await User.findOne({ username: username })
+    if (
+      searchResult == null ||
+      !bcrypt.compareSync(password, searchResult.password)
+    ) {
+      return res
+        .status(400)
+        .json({ title: 'error', message: 'Incorrect username or password' })
+    } else {
+      return res.json({
+        title: 'success',
+        message: 'login success',
+        resultMap: {
+          token: jwt.sign({ id: searchResult._id }, process.env.JWT_SECRET),
+        },
       })
     }
-    // 如果找不到使用者或密碼錯誤
-    if (!user) {
-      return res.status(401).json({
-        title: 'error',
-        message: info.message,
-      })
-    }
-    //沒問題就發token
-    return res.status(200).json({
-      title: 'success',
-      message: 'login success',
-      resultMap: {
-        token: jwt.sign({ id: user._id }, process.env.JWT_SECRET),
-      },
-    })
-  })(req, res, next)
+  } catch (err) {
+    return res.status(400).json({ title: 'error', message: err })
+  }
 })
 
 //-----測試拿資料-----
@@ -95,7 +100,7 @@ router.get(
     session: false,
   }),
   async (req, res) => {
-    console.log(req.user.account + ' get data')
+    console.log(req.user.username + ' get data')
     return res.status(200).json({
       title: 'success',
       message: 'get data success',

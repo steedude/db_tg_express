@@ -1,39 +1,17 @@
 const passport = require('passport')
-const passportLocal = require('passport-local')
+// const passportLocal = require('passport-local')
 const passportJWT = require('passport-jwt')
-const bcrypt = require('bcrypt')
+// const bcrypt = require('bcrypt')
 const User = require('../models/user')
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
 
-const LocalStrategy = passportLocal.Strategy
+// const LocalStrategy = passportLocal.Strategy
 const { Strategy: JwtStrategy, ExtractJwt } = passportJWT
 
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: process.env.JWT_SECRET,
 }
-
-passport.use(
-  'login',
-  new LocalStrategy(async (username, password, done) => {
-    try {
-      const searchResult = await User.findOne({ account: username })
-      if (
-        searchResult == null ||
-        !bcrypt.compareSync(password, searchResult.password)
-      ) {
-        done(null, false, {
-          title: 'error',
-          message: 'Incorrect account or password',
-        })
-      } else {
-        done(null, searchResult)
-      }
-    } catch (err) {
-      done(err, false)
-    }
-  })
-)
 
 passport.use(
   'token',
