@@ -48,7 +48,6 @@ router.post('/register', async (req, res) => {
       title: 'success',
       message: 'A document was inserted',
       resultMap: {
-        insertedId: insertResult.insertedId,
         token: jwt.sign({ id: insertResult._id }, process.env.JWT_SECRET),
       },
     })
