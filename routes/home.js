@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const moment = require('moment')
+const { DateTime } = require('luxon')
 const { bot } = require('../utils/bot.js')
 const bcrypt = require('bcrypt')
 const User = require('../models/user')
@@ -15,11 +15,12 @@ router.get('/', async (req, res) => {
     message: 'The app is working properly!',
   })
 })
-
 bot.hears('上班', (ctx) => {
   let chatId = ctx.chat.id
-  let time = moment(new Date()).format('YYYY-MM-DD , h:mm:ss a')
-  let newTime = moment(new Date()).add(9, 'h').format('YYYY-MM-DD , h:mm:ss a')
+  let time = DateTime.now().toFormat('yyyy-LL-dd , HH:mm:ss')
+  let newTime = DateTime.now()
+    .plus({ hours: 9 })
+    .toFormat('yyyy-LL-dd , HH:mm:ss')
   ctx.reply(`上班時間: ${time} \n 預計提示下班時間為: ${newTime}`)
   const job = schedule.scheduleJob(newTime, function () {
     bot.telegram.sendMessage(chatId, '辛苦了，下班囉')
@@ -72,7 +73,6 @@ const registerWizard = new WizardScene(
       const result = await User.create(doc)
       ctx.reply(`已成功註冊，${result}`)
     } catch (e) {
-      console.log('註冊失敗')
       ctx.reply(e.toString())
     }
     return ctx.scene.leave()
@@ -153,12 +153,13 @@ const reserveWizard = new WizardScene(
   async (ctx) => {
     ctx.wizard.state.data.msg = ctx.message.text
     let datas = ctx.wizard.state.data
-    const date = moment(
-      `2023-${datas.month.slice(0, 2)}-${datas.date.slice(0, 2)}, ${
-        datas.hour
-      }:${datas.mins}`,
-      'YYYY-MM-DD, hh:mm'
-    ).format('YYYY-MM-DD, hh:mm')
+    const date = DateTime.local(
+      2023,
+      Number(datas.month.slice(0, 2)),
+      Number(datas.date.slice(0, 2)),
+      Number(datas.hour),
+      Number(datas.mins)
+    ).toFormat('yyyy-LL-dd , HH:mm')
     const job = schedule.scheduleJob(date, function () {
       bot.telegram.sendMessage(ctx.chat.id, datas.msg)
     })
