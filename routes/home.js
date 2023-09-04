@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const { DateTime } = require('luxon')
+const { DateTime, Settings } = require('luxon')
 const { bot } = require('../utils/bot.js')
 const bcrypt = require('bcrypt')
 const User = require('../models/user')
@@ -8,6 +8,7 @@ const schedule = require('node-schedule')
 const { session, Scenes, Markup } = require('telegraf')
 const Stage = Scenes.Stage
 const WizardScene = Scenes.WizardScene
+Settings.defaultZone = 'Asia/Taipei'
 
 router.get('/', async (req, res) => {
   return res.status(200).json({
