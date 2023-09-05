@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const { DateTime, Settings } = require('luxon')
+const { DateTime } = require('luxon')
 const { bot } = require('../utils/bot.js')
 const bcrypt = require('bcrypt')
 const User = require('../models/user')
@@ -8,7 +8,6 @@ const schedule = require('node-schedule')
 const { session, Scenes, Markup } = require('telegraf')
 const Stage = Scenes.Stage
 const WizardScene = Scenes.WizardScene
-Settings.defaultZone = 'Asia/Taipei'
 
 router.get('/', async (req, res) => {
   return res.status(200).json({
@@ -18,12 +17,16 @@ router.get('/', async (req, res) => {
 })
 bot.hears('上班', (ctx) => {
   let chatId = ctx.chat.id
-  let time = DateTime.now().toFormat('yyyy-LL-dd , HH:mm:ss')
-  let newTime = DateTime.now()
-    .plus({ hours: 9 })
-    .toFormat('yyyy-LL-dd , HH:mm:ss')
-  ctx.reply(`上班時間: ${time} \n 預計提示下班時間為: ${newTime}`)
-  const job = schedule.scheduleJob(newTime, function () {
+  let time = DateTime.local().setZone('Asia/Taipei')
+  let newTime = DateTime.local().plus({ hours: 9 })
+  ctx.reply(
+    `上班時間: ${time.toFormat(
+      'yyyy-LL-dd , HH:mm:ss'
+    )} \n 預計提示下班時間為: ${newTime
+      .setZone('Asia/Taipei')
+      .toFormat('yyyy-LL-dd , HH:mm:ss')}`
+  )
+  const job = schedule.scheduleJob(newTime.toISO(), function () {
     bot.telegram.sendMessage(chatId, '辛苦了，下班囉')
   })
   console.log(job)
@@ -114,7 +117,7 @@ const reserveWizard = new WizardScene(
     return ctx.wizard.next()
   },
   (ctx) => {
-    ctx.wizard.state.data.date = ctx.message.text
+    ctx.wizard.state.data.day = ctx.message.text
     ctx.reply(
       '請輸入小時',
       Markup.keyboard([
@@ -147,25 +150,39 @@ const reserveWizard = new WizardScene(
     return ctx.wizard.next()
   },
   (ctx) => {
-    ctx.wizard.state.data.mins = ctx.message.text
+    ctx.wizard.state.data.minute = ctx.message.text
     ctx.reply('請輸入提醒內容')
     return ctx.wizard.next()
   },
   async (ctx) => {
     ctx.wizard.state.data.msg = ctx.message.text
     let datas = ctx.wizard.state.data
-    const date = DateTime.local(
-      2023,
-      Number(datas.month.slice(0, 2)),
-      Number(datas.date.slice(0, 2)),
-      Number(datas.hour),
-      Number(datas.mins)
-    ).toFormat('yyyy-LL-dd , HH:mm')
-    const job = schedule.scheduleJob(date, function () {
-      bot.telegram.sendMessage(ctx.chat.id, datas.msg)
-    })
+    let month = Number(datas.month.slice(0, 2))
+    let day = Number(datas.day.slice(0, 2))
+    let hour = Number(datas.hour)
+    let minute = Number(datas.minute)
+    let reserveDate = DateTime.fromObject(
+      {
+        year: 2023,
+        month: month,
+        day: day,
+        hour: hour,
+        minute: minute,
+      },
+      {
+        zone: 'Asia/Taipei',
+      }
+    )
+    const job = schedule.scheduleJob(
+      reserveDate.toLocal().toISO(),
+      function () {
+        bot.telegram.sendMessage(ctx.chat.id, datas.msg)
+      }
+    )
     console.log(job)
-    ctx.reply(`將於${date}提醒您：${datas.msg}`)
+    ctx.reply(
+      `將於${reserveDate.toFormat('yyyy-LL-dd , HH:mm:ss')}提醒您：${datas.msg}`
+    )
     return ctx.scene.leave()
   }
 )
