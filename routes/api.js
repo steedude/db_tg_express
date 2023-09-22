@@ -7,21 +7,27 @@ const User = require('../models/user')
 
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
 
+async function getUserInfo(user) {
+  return {
+    account: user.account,
+    updated: user.updated,
+  }
+}
 //----註冊-----
 router.post('/register', async (req, res) => {
   const { username, password, confirmPassword } = req.body
   //防呆
   if (!username || !password || !confirmPassword) {
-    return res.status(400).json({ resultCode: 401 })
+    return res.status(422).json({ resultCode: 1001 })
   }
   if (password !== confirmPassword) {
-    return res.status(400).json({ resultCode: 402 })
+    return res.status(422).json({ resultCode: 1002 })
   }
   try {
     //確認有無重複帳號
     const searchResult = await User.findOne({ username: username })
     if (searchResult != null) {
-      return res.status(400).json({ resultCode: 403 })
+      return res.status(409).json({ resultCode: 1003 })
     }
     //新增帳號
     const doc = {
@@ -33,12 +39,11 @@ router.post('/register', async (req, res) => {
       resultCode: 200,
       resultMap: {
         token: jwt.sign({ id: insertResult._id }, process.env.JWT_SECRET),
+        user: getUserInfo(insertResult),
       },
     })
   } catch (err) {
-    return res
-      .status(400)
-      .json({ resultCode: 400, resultMap: { message: err } })
+    return res.status(400).json({ resultCode: 1000, message: err })
   }
 })
 
@@ -47,7 +52,7 @@ router.post('/login', async (req, res) => {
   const { username, password } = req.body
   //防呆
   if (!username || !password) {
-    return res.status(400).json({ resultCode: 401 })
+    return res.status(422).json({ resultCode: 1001 })
   }
   try {
     const searchResult = await User.findOne({ username: username })
@@ -56,19 +61,17 @@ router.post('/login', async (req, res) => {
       searchResult == null ||
       !bcrypt.compareSync(password, searchResult.password)
     ) {
-      return res.status(400).json({ resultCode: 404 })
-    } else {
-      return res.json({
-        resultCode: 200,
-        resultMap: {
-          token: jwt.sign({ id: searchResult._id }, process.env.JWT_SECRET),
-        },
-      })
+      return res.status(401).json({ resultCode: 1004 })
     }
+    return res.json({
+      resultCode: 200,
+      resultMap: {
+        token: jwt.sign({ id: searchResult._id }, process.env.JWT_SECRET),
+        user: getUserInfo(searchResult),
+      },
+    })
   } catch (err) {
-    return res
-      .status(400)
-      .json({ resultCode: 400, resultMap: { message: err } })
+    return res.status(400).json({ resultCode: 1000, message: err })
   }
 })
 
