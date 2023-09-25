@@ -7,9 +7,9 @@ const User = require('../models/user')
 
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
 
-async function getUserInfo(user) {
+function getUserInfo(user) {
   return {
-    account: user.account,
+    username: user.username,
     updated: user.updated,
   }
 }
@@ -34,13 +34,9 @@ router.post('/register', async (req, res) => {
       username: username,
       password: bcrypt.hashSync(password, bcrypt.genSaltSync(10)),
     }
-    const insertResult = await User.create(doc)
+    await User.create(doc)
     return res.status(200).json({
       resultCode: 200,
-      resultMap: {
-        token: jwt.sign({ id: insertResult._id }, process.env.JWT_SECRET),
-        user: getUserInfo(insertResult),
-      },
     })
   } catch (err) {
     return res.status(400).json({ resultCode: 1000, message: err })
@@ -77,6 +73,11 @@ router.post('/login', async (req, res) => {
   }
 })
 
+router.post('/logout', async (req, res) => {
+  return res.json({
+    resultCode: 200,
+  })
+})
 //-----測試拿資料-----
 router.get('/test', verifyJWT, async (req, res) => {
   return res.status(200).json({
