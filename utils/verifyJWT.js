@@ -14,12 +14,16 @@ async function verifyJWT(req, res, next) {
     )
     const searchResult = await User.findById(decoded.id)
     if (!searchResult) {
-      return res.status(401).json({ resultCode: 1006 })
+      return res.status(404).json({ resultCode: 1006 })
     }
     req.user = searchResult
     next()
   } catch (err) {
-    return res.status(401).json({ resultCode: 1007 })
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ resultCode: 1007 })
+    } else {
+      return res.status(401).json({ resultCode: 1008 })
+    }
   }
 }
 

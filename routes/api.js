@@ -66,7 +66,9 @@ router.post('/login', async (req, res) => {
     return res.json({
       resultCode: 200,
       resultMap: {
-        token: jwt.sign({ id: searchResult._id }, process.env.JWT_SECRET),
+        token: jwt.sign({ id: searchResult._id }, process.env.JWT_SECRET, {
+          expiresIn: '30m',
+        }),
         user: getUserInfo(searchResult),
       },
     })
