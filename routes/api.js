@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const passport = require('passport')
+const verifyJWT = require('../utils/verifyJWT')
 const User = require('../models/user')
 
 require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
@@ -76,20 +76,12 @@ router.post('/login', async (req, res) => {
 })
 
 //-----測試拿資料-----
-router.get(
-  '/test',
-  passport.authenticate('token', {
-    session: false,
-  }),
-  async (req, res) => {
-    console.log(req.user.username + ' get data')
-    return res.status(200).json({
-      resultCode: 200,
-      resultMap: {
-        data: [1, 2, 3, 4],
-      },
-    })
-  }
-)
-
+router.get('/test', verifyJWT, async (req, res) => {
+  return res.status(200).json({
+    resultCode: 200,
+    resultMap: {
+      data: [1, 2, 3, 4],
+    },
+  })
+})
 module.exports = router

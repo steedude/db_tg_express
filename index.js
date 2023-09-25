@@ -1,7 +1,5 @@
 const express = require('express')
 const cors = require('cors')
-const session = require('express-session')
-const passport = require('./config/passport')
 const mongoose = require('mongoose')
 const api = require('./routes/api')
 const home = require('./routes/home')
@@ -11,15 +9,6 @@ require('dotenv').config({ path: `.env.${process.env.NODE_ENV}` })
 const app = express()
 app.use(express.json())
 app.use(cors())
-app.use(
-  session({
-    secret: 'skyline-punch',
-    resave: false,
-    saveUninitialized: false,
-  })
-)
-app.use(passport.initialize())
-app.use(passport.session())
 
 app.use('/', home)
 app.use('/api', api)
