@@ -2,12 +2,12 @@ const jsonwebtoken = require('jsonwebtoken')
 const User = require('../models/user')
 
 async function verifyJWT(req, res, next) {
-  const bearer = req.headers.authorization.split(' ')
-  const bearerToken = bearer[1]
-  if (!bearerToken) {
-    return res.status(401).json({ resultCode: 1005 })
-  }
   try {
+    const bearer = req.headers.authorization.split(' ')
+    const bearerToken = bearer[1]
+    if (!bearerToken) {
+      return res.status(401).json({ resultCode: 1005 })
+    }
     const decoded = await jsonwebtoken.verify(
       bearerToken,
       process.env.JWT_SECRET
