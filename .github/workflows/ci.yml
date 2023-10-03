@@ -21,4 +21,5 @@ jobs:
             export NVM_DIR=~/.nvm
             source ~/.nvm/nvm.sh
             npm install
-            npm run start
+            pm2 delete bot
+            pm2 start ecosystem.config.js --env production
