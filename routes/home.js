@@ -12,7 +12,7 @@ const WizardScene = Scenes.WizardScene
 router.get('/', async (req, res) => {
   return res.status(200).json({
     title: 'Express Testing',
-    message: 'The app is working properly!!!!!!!!',
+    message: 'The app is working properly!!!!!!',
   })
 })
 bot.hears('上班', (ctx) => {
