@@ -15,8 +15,4 @@ jobs:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SECRET }}
-          script: |
-          cd db_tg_express/
-          git pull
-          npm i
-          npm run start
+          script: whoami
