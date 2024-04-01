@@ -1,17 +1,14 @@
-# skyline-punch
+# db_tg_express
 
-利用tg所製作的打卡機器人
+tg的打卡機器人 + untitled_index的後台
 
-### 部署方式
+## 部署
 
-pm2 start ecosystem.config.js --env production
+主機放在ORACLE，由github自動部署，使用最基本的pm2 + nginx
 
-###使用方式
+[backend.silver-tercel.com](https://backend.silver-tercel.com/)
 
-##### 第一步
+## 使用方式
 
-在tg搜尋“skyline_get_off_work_bot”
-
-##### 第二步
-
-輸入/start
+1.在tg搜尋“skyline_get_off_work_bot”  
+2.輸入/start
