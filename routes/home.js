@@ -26,10 +26,9 @@ bot.hears('上班', (ctx) => {
       .setZone('Asia/Taipei')
       .toFormat('yyyy-LL-dd , HH:mm:ss')}`
   )
-  const job = schedule.scheduleJob(newTime.toISO(), function () {
+  schedule.scheduleJob(newTime.toISO(), function () {
     bot.telegram.sendMessage(chatId, '辛苦了，下班囉')
   })
-  console.log(job)
 })
 
 bot.command('start', (ctx) => {
